@@ -6,6 +6,7 @@ namespace ColibriWP\Theme\Customizer\Controls;
 
 use ColibriWP\Theme\Core\Hooks;
 use ColibriWP\Theme\PluginsManager;
+use ColibriWP\Theme\Theme;
 use ColibriWP\Theme\Translations;
 
 class PluginMessageControl extends VueControl {
@@ -21,7 +22,7 @@ class PluginMessageControl extends VueControl {
             <p>
                 <?php echo Translations::get( 'plugin_message', 'Colibri Page Builder' ); ?>
             </p>
-            <?php if ( colibriwp_theme()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::NOT_INSTALLED_PLUGIN ): ?>
+            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::NOT_INSTALLED_PLUGIN ): ?>
                 <button data-colibri-plugin-action="install"
                         class="el-button el-link h-col el-button--primary el-button--small"
                         style="text-decoration: none">
@@ -29,7 +30,7 @@ class PluginMessageControl extends VueControl {
                 </button>
             <?php endif; ?>
 
-            <?php if ( colibriwp_theme()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::INSTALLED_PLUGIN ): ?>
+            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::INSTALLED_PLUGIN ): ?>
                 <button data-colibri-plugin-action="activate"
                         class="el-button el-link h-col el-button--primary el-button--small"
                         style="text-decoration: none">
@@ -53,14 +54,15 @@ class PluginMessageControl extends VueControl {
         add_action( 'customize_controls_print_footer_scripts', function () {
 
             $data = array(
-                "status"       => colibriwp_theme()->getPluginsManager()->getPluginState( 'colibri-page-builder' ),
-                "install_url"  => colibriwp_theme()->getPluginsManager()->getInstallLink( 'colibri-page-builder' ),
-                "activate_url" => colibriwp_theme()->getPluginsManager()->getActivationLink( 'colibri-page-builder' ),
+                "status"       => Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ),
+                "install_url"  => Theme::getInstance()->getPluginsManager()->getInstallLink( 'colibri-page-builder' ),
+                "activate_url" => Theme::getInstance()->getPluginsManager()->getActivationLink( 'colibri-page-builder' ),
+                "theme_slug" => Theme::$slug,
                 "messages"     => array(
-                    "installing" => Translations::get( 'installing',
-                        'Colibri Page Builder' ),
-                    "activating" => Translations::get( 'activating',
-                        'Colibri Page Builder' )
+                "installing" => Translations::get( 'installing',
+                    'Colibri Page Builder' ),
+                "activating" => Translations::get( 'activating',
+                    'Colibri Page Builder' )
                 ),
                 "admin_url"    => add_query_arg( array(
                     'colibri_create_pages'       => '1',

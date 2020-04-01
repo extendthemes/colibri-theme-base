@@ -22,7 +22,7 @@ class PluginsManager {
     public function __construct( $theme ) {
 
         if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
-            require_once colibriwp_theme_root_directory() . "/inc/class-tgm-plugin-activation.php";
+            require_once Theme::rootDirectory() . "/inc/class-tgm-plugin-activation.php";
         }
         $this->theme = $theme;
     }
@@ -55,7 +55,7 @@ class PluginsManager {
 
         add_action( 'tgmpa_register', array( $this, 'tgmpaRegitster' ) );
 
-        add_action( 'wp_ajax_colibriwp_activate_plugin', function () {
+        Hooks::add_wp_ajax( 'activate_plugin', function () {
 
             $slug = isset( $_REQUEST['slug'] ) ? $_REQUEST['slug'] : false;
 

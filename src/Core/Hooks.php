@@ -63,6 +63,11 @@ class Hooks {
         }
     }
 
+    public static function add_wp_ajax( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
+        //error_log(' \'wp_ajax_\'. Theme::prefix($tag, false)'.  'wp_ajax_'. Theme::prefix($tag, false));
+        add_action( 'wp_ajax_'. Theme::prefix($tag, false), $function_to_add, $priority, $accepted_args );
+    }
+
 
     /**
      * @param $data

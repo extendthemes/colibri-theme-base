@@ -19,13 +19,13 @@ class HeaderPresets {
 
     public function loadHeadersData() {
 
-        if ( ! file_exists( colibriwp_theme_root_directory() . "/inc/customizer-headers.php" ) ) {
+        if ( ! file_exists( Theme::rootDirectory() . "/inc/customizer-headers.php" ) ) {
             return;
         }
 
-        $assets_base_url = colibriwp_theme_root_directory_uri() . "/resources/header-presets";
+        $assets_base_url = Theme::rootDirectoryUri() . "/resources/header-presets";
 
-        $headers = require_once colibriwp_theme_root_directory() . "/inc/customizer-headers.php";
+        $headers = require_once Theme::rootDirectory() . "/inc/customizer-headers.php";
         foreach ( $headers as $index => $header ) {
             $image = Utils::pathGet( $header, 'image', '' );
             $data  = Utils::pathGet( $header, 'data', array() );

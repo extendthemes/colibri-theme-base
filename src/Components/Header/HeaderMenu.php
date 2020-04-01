@@ -11,6 +11,7 @@ namespace ColibriWP\Theme\Components\Header;
 
 use ColibriWP\Theme\Components\CSSOutput;
 use ColibriWP\Theme\Core\ComponentBase;
+use ColibriWP\Theme\Core\Hooks;
 use ColibriWP\Theme\Defaults;
 use ColibriWP\Theme\Translations;
 use ColibriWP\Theme\View;
@@ -348,7 +349,7 @@ class HeaderMenu extends ComponentBase {
         $menu = wp_page_menu( array(
             "menu_class" => 'colibri-menu-container',
             'before'     => '<ul class="' . esc_attr( implode( " ", $drop_down_menu_classes ) ) . '">',
-            'after'      => apply_filters( 'colibriwp_nomenu_after', '' ) . "</ul>",
+            'after'      => Hooks::prefixed_apply_filters('nomenu_after', '' ) . "</ul>",
         ) );
 
 
@@ -359,7 +360,7 @@ class HeaderMenu extends ComponentBase {
 
     function colibriMenuAddShopingCart() {
         add_filter( 'wp_nav_menu_items', array( $this, 'colibri_woocommerce_cart_menu_item' ), 10, 2 );
-        add_filter( 'colibriwp_nomenu_after', array( $this, 'colibri_woocommerce_cart_menu_item' ), 10, 2 );
+        Hooks::prefixed_add_filter( 'nomenu_after', array( $this, 'colibri_woocommerce_cart_menu_item' ), 10, 2 );
     }
 
 }

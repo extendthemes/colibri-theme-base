@@ -8,6 +8,7 @@ use ColibriWP\Theme\Components\CSSOutput;
 use ColibriWP\Theme\Core\PartialComponent;
 use ColibriWP\Theme\Core\Utils;
 use ColibriWP\Theme\Defaults;
+use ColibriWP\Theme\Theme;
 use ColibriWP\Theme\Translations;
 
 class HeroStyle extends PartialComponent {
@@ -402,7 +403,7 @@ class HeroStyle extends PartialComponent {
 			"value"    => true,
 		);
 
-		$shape_base_url = colibriwp_theme_root_directory_uri() . '/resources/images/header-shapes';
+		$shape_base_url = Theme::rootDirectoryUri() . '/resources/images/header-shapes';
 
 		return array(
 

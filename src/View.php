@@ -3,11 +3,9 @@
 
 namespace ColibriWP\Theme;
 
-
 use ColibriWP\Theme\Core\Hooks;
 use ColibriWP\Theme\Core\Tree;
 use ColibriWP\Theme\Core\Utils;
-
 
 class View {
 
@@ -28,22 +26,42 @@ class View {
         $category = Utils::camel2dashed( $category );
         $slug     = Utils::camel2dashed( $slug );
 
-        static::make( "template-parts/{$category}/{$slug}", $data );
+        static::make( Theme::resolveTemplateRelativePath("template-parts/{$category}/{$slug}"), $data,false );
 
     }
 
-    public static function make( $path, $data = array() ) {
+    public static function get_template_part( $path ) {
+        self::make($path);
+    }
+
+    public static function make( $path, $data = array(), $try_to_locate_in_base = true ) {
         global $wp_query;
 
         $wp_query->query_vars['colibri_data'] = new Tree( $data );
 
-        if ( file_exists( $path ) ) {
+        if (file_exists($path)) {
             load_template( $path );
         } else {
-            one_page_express_get_template_part( $path );
+            $file_path = "{$path}.php";
+            if ( locate_template($file_path, false)) {
+                get_template_part( $path );
+            } else {
+                $resolved = false;
+                if ($try_to_locate_in_base) {
+                    $base_path = Theme::resolveThemeBaseTemplateRelativePath($path);
+                    $base_file_php = "{$base_path}.php";
+                    $base_file_abs_path = locate_template($base_file_php, false);
+                    if ($base_file_abs_path) {
+                        $resolved = true;
+                        get_template_part( $base_path );
+                    }
+                }
+
+                if (!$resolved) {
+                    get_template_part($path);
+                }
+            }
         }
-
-
         $wp_query->query_vars['colibri_data'] = null;
     }
 
@@ -116,7 +134,7 @@ class View {
         return wp_page_menu( array(
             "menu_class" => 'colibri-menu-container',
             'before'     => '<ul class="' . esc_attr( implode( " ", $drop_down_menu_classes ) ) . '">',
-            'after'      => apply_filters( 'colibriwp_nomenu_after', '' ) . "</ul>",
+            'after'      => Hooks::prefixed_apply_filters('nomenu_after', '' ) . "</ul>",
             'walker'     => $walker,
         ) );
     }
@@ -167,19 +185,19 @@ class View {
 
         $args = wp_parse_args( $args, array(
             'mid_size'           => 2,
-            'before_page_number' => '<span class="meta-nav screen-reader-text">' . __( 'Page', 'colibri-wp' )
+            'before_page_number' => '<span class="meta-nav screen-reader-text">' . __( 'Page', 'one-page-express' )
                                     . ' </span>',
-            'prev_text'          => __( '<i class="fa fa-angle-left" aria-hidden="true"></i>', 'colibri-wp' ),
-            'next_text'          => __( '<i class="fa fa-angle-right" aria-hidden="true"></i>', 'colibri-wp' ),
-            'screen_reader_text' => __( 'Posts navigation', 'colibri-wp' ),
+            'prev_text'          => __( '<i class="fa fa-angle-left" aria-hidden="true"></i>', 'one-page-express' ),
+            'next_text'          => __( '<i class="fa fa-angle-right" aria-hidden="true"></i>', 'one-page-express' ),
+            'screen_reader_text' => __( 'Posts navigation', 'one-page-express' ),
         ) );
 
         $links = paginate_links( $args );
 
         $next_link = get_previous_posts_link( __( '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-            'colibri-wp' ) );
+            'one-page-express' ) );
         $prev_link = get_next_posts_link( __( '<i class="fa fa-angle-right" aria-hidden="true"></i>',
-            'colibri-wp' ) );
+            'one-page-express' ) );
 
         $template = '<div class="navigation %1$s" role="navigation">' .
                     '  <h2 class="screen-reader-text">%2$s</h2>' .

@@ -19,12 +19,15 @@ class CSSOutput implements ComponentInterface {
 
     const NO_MEDIA = "__colibri__no__media__";
     const GRADIENT_VALUE_PATTERN = 'linear-gradient(#angle#deg,#steps.0.color# #steps.0.position#% ,#steps.1.color# #steps.1.position#%)';
-    const SELECTORS_PREFIX = "html.colibri-wp-theme #colibri ";
+
+    public function themePrefix() {
+      return "html.".Theme::slug()."-theme #colibri ";
+    }
 
     public function render() {
 
         Hooks::prefixed_add_filter( 'customizer_additional_js_data', function ( $data ) {
-            $data['css_selectors_prefix'] = CSSOutput::SELECTORS_PREFIX;
+            $data['css_selectors_prefix'] = $this->themePrefix();
             return $data;
         } );
 
@@ -219,7 +222,7 @@ class CSSOutput implements ComponentInterface {
 
             $rules = implode( ";", $rules_parts );
 
-            $content .= CSSOutput::SELECTORS_PREFIX . "{$selector}{{$rules}}";
+            $content .= $this->themePrefix() . "{$selector}{{$rules}}";
         }
 
         if ( ! empty( $media ) ) {

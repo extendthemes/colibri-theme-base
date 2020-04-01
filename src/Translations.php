@@ -10,7 +10,7 @@ class Translations {
     private static $texts = array();
 
     public static function load() {
-        $texts = require_once colibriwp_theme_root_directory() . "/inc/translations.php";
+        $texts = require_once Theme::rootDirectory() . "/inc/translations.php";
         static::$texts = Hooks::prefixed_apply_filters( 'translations', $texts );
     }
 

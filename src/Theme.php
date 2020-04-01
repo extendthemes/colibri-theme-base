@@ -8,17 +8,15 @@ use ColibriWP\Theme\Core\ComponentInterface;
 use ColibriWP\Theme\Core\Hooks;
 use ColibriWP\Theme\Core\Utils;
 use Exception;
-use function add_theme_support;
-use function get_template;
-use function register_nav_menus;
-use function register_sidebar;
-use function str_replace;
 
 
 class Theme {
 
     private static $instance = null;
-    private static $slug = null;
+    public static $slug = null;
+
+    private static $theme_base_relative_path = "";
+    private static $theme_root_relative_path = "";
 
     private $repository;
     private $customizer;
@@ -43,14 +41,60 @@ class Theme {
 
     }
 
-    public static function prefix($str) {
-      static::$slug = str_replace('-', '_', get_template());
-      $slug = static::$slug ? static::$slug  : 'colibriwp';
-      return $slug."_theme_".$str;
+    public static function slug() {
+      return str_replace('_', '-', self::$slug);
     }
 
-    public static function load($slug = "colibriwp") {
+    public static function prefix($str, $theme = true) {
+      static::$slug = str_replace('-', '_', get_template());
+      $slug = static::$slug ? static::$slug  : 'colibriwp';
+      return $slug.($theme ? "_theme_" : "_").$str;
+    }
+
+    public static function setThemeBaseRelativePath($path)
+    {
+        static::$theme_base_relative_path = $path;
+    }
+
+    public static function getThemeBaseRelativePath()
+    {
+        return static::$theme_base_relative_path;
+    }
+
+    public static function setThemeRootRelativePath($path)
+    {
+        static::$theme_root_relative_path = $path;
+    }
+
+    public static function getThemeRootRelativePath()
+    {
+        return static::$theme_root_relative_path;
+    }
+
+    public static function resolveTemplateRelativePath($rel)
+    {
+        return static::$theme_root_relative_path . $rel;
+    }
+
+    public static function resolveThemeBaseTemplateRelativePath($rel)
+    {
+        return static::$theme_base_relative_path . $rel;
+    }
+
+
+    public static function load($data) {
+        static::$theme_base_relative_path = $data['themeBaseRelativePath'];
+        static::$theme_root_relative_path = $data['themeRelativePath'];
+        Hooks::prefixed_add_action( 'components', array(__CLASS__, 'registerComponents'));
         static::getInstance();
+    }
+
+    public static function rootDirectory() {
+        return get_template_directory() . "/" . static::$theme_root_relative_path . "/";
+    }
+
+    public static function rootDirectoryUri() {
+        return get_template_directory_uri() . "/" . static::$theme_root_relative_path . "/";
     }
 
     /**
@@ -61,7 +105,6 @@ class Theme {
             static::$instance = new static();
             Hooks::prefixed_do_action( 'theme_loaded', static::$instance );
         }
-
         return static::$instance;
     }
 
@@ -70,9 +113,11 @@ class Theme {
 
         global $wp_registered_sidebars;
 
-        $sidebar['before_widget'] .= '<!--colibriwp_before_widget-->';
-        $sidebar['after_widget']  .= '<!--colibriwp_after_widget-->';
-        $sidebar['after_title']   .= '<!--colibriwp_after_title-->';
+        $slug = self::$slug;
+
+        $sidebar['before_widget'] .= sprintf('<!--%s_before_widget-->', $slug);
+        $sidebar['after_widget']  .= sprintf('<!--%s_after_widget-->', $slug);
+        $sidebar['after_title']   .= sprintf('<!--%s_after_title-->', $slug);
 
 
         $wp_registered_sidebars[ $sidebar['id'] ] = $sidebar;
@@ -94,15 +139,15 @@ class Theme {
             $content = ob_get_clean();
 
             $wrapper_start_added = false;
-
-            if ( strpos( $content, '<!--colibriwp_after_title-->' ) !== false ) {
-                $content             = str_replace( '<!--colibriwp_after_title-->',
+            $slug = self::$slug;
+            if ( strpos( $content, '<!--'.$slug.'_after_title-->' ) !== false ) {
+                $content             = str_replace( '<!--'.$slug.'_after_title-->',
                     '<div class="colibri-widget-content-container">',
                     $content );
                 $wrapper_start_added = true;
             } else {
-                if ( strpos( $content, '<!--colibriwp_before_widget-->' ) !== false ) {
-                    $content = str_replace( '<!--colibriwp_before_widget-->',
+                if ( strpos( $content, '<!--'.$slug.'_before_widget-->' ) !== false ) {
+                    $content = str_replace( '<!--'.$slug.'_before_widget-->',
                         '<div class="colibri-widget-content-container">',
                         $content );
                 }
@@ -110,7 +155,7 @@ class Theme {
             }
 
             if ( $wrapper_start_added ) {
-                $content = str_replace( '<!--colibriwp_after_widget-->',
+                $content = str_replace( '<!--'.$slug.'_after_widget-->',
                     '</div>',
                     $content );
             }
@@ -121,6 +166,109 @@ class Theme {
 
         return $params;
     }
+
+
+     public static function page_builder_components( $components ) {
+        $namespace = "ColibriWP\\Theme\\BuilderComponents";
+
+        $components = array_merge( $components, array(
+
+            'css'                => "{$namespace}\\CSSOutput",
+
+            // header components
+            'header'             => "{$namespace}\\Header",
+
+            // footer components
+            'footer'             => "{$namespace}\\Footer",
+
+            // page content
+            'main'               => "{$namespace}\\MainContent",
+            'single'             => "{$namespace}\\SingleContent",
+            'content'            => "{$namespace}\\PageContent",
+            'front-page-content' => "{$namespace}\\FrontPageContent",
+            // sidebar
+            'sidebar'            => "{$namespace}\\Sidebar",
+            // 404
+            'page-not-found'     => "{$namespace}\\PageNotFound",
+
+            // woo
+            'main-woo'           => "{$namespace}\\WooContent",
+        ) );
+
+        return $components;
+    }
+
+     public static function  default_components( $components ) {
+
+        $namespace = "ColibriWP\\Theme\\Components";
+
+        $components = array_merge( $components, array(
+
+            // header components
+            'header'               => "{$namespace}\\Header",
+            'logo'                 => "{$namespace}\\Header\\Logo",
+            'header-menu'          => "{$namespace}\\Header\\HeaderMenu",
+
+            // inner page fragments
+            'inner-nav-bar'        => "{$namespace}\\InnerHeader\\NavBar",
+            'inner-top-bar'        => "{$namespace}\\InnerHeader\\TopBar",
+            'inner-hero'           => "{$namespace}\\InnerHeader\\Hero",
+            'inner-title'          => "{$namespace}\\InnerHeader\\Title",
+
+            // front page fragments
+            'front-hero'           => "{$namespace}\\FrontHeader\\Hero",
+            'front-title'          => "{$namespace}\\FrontHeader\\Title",
+            'front-subtitle'       => "{$namespace}\\FrontHeader\\Subtitle",
+            'front-buttons'        => "{$namespace}\\FrontHeader\\ButtonsGroup",
+            'top-bar-list-icons'   => "{$namespace}\\FrontHeader\\TopBarListIcons",
+            'top-bar-social-icons' => "{$namespace}\\FrontHeader\\TopBarSocialIcons",
+            'front-nav-bar'        => "{$namespace}\\FrontHeader\\NavBar",
+            'front-top-bar'        => "{$namespace}\\FrontHeader\\TopBar",
+            'front-image'          => "{$namespace}\\FrontHeader\\Image",
+
+
+            // footer components
+            'footer'               => "{$namespace}\\Footer",
+            'front-footer'         => "{$namespace}\\Footer\\FrontFooter",
+
+            // general components
+            'css'                  => "{$namespace}\\CSSOutput",
+
+            // page content
+            'main'                 => "{$namespace}\\MainContent",
+            'single'               => "{$namespace}\\SingleContent",
+            'content'              => "{$namespace}\\PageContent",
+            'front-page-content'   => "{$namespace}\\FrontPageContent",
+            'search'               => "{$namespace}\\PageSearch",
+            'page-not-found'       => "{$namespace}\\PageNotFound",
+
+            // inner content fragments
+
+            //main content
+            'main-loop'            => "{$namespace}\\MainContent\ArchiveLoop",
+            'post-loop'            => "{$namespace}\\MainContent\PostLoop",
+            'archive-loop'         => "{$namespace}\\MainContent\ArchiveLoop",
+            'single-template'      => "{$namespace}\\MainContent\SingleItemTemplate",
+
+            // sidebar
+            'sidebar'              => "{$namespace}\\Sidebar",
+
+            // woo
+            'main-woo'             => "{$namespace}\\WooContent",
+        ) );
+
+        return $components;
+    }
+
+     public static function registerComponents( $components = array() ) {
+        if ( apply_filters( 'colibri_page_builder/installed', false ) ) {
+            $components = static::page_builder_components( $components );
+        } else {
+            $components = static::default_components( $components );
+        }
+        return $components;
+    }
+
 
     public function afterSetup() {
 
@@ -144,7 +292,7 @@ class Theme {
         add_action( 'admin_notices', array( $this, 'addThemeNotice' ) );
 
 
-        add_action( 'wp_ajax_colibriwp_disable_big_notice', function () {
+        Hooks::add_wp_ajax('disable_big_notice', function () {
             $slug = get_template() . "-page-info";
             update_option( "{$slug}-theme-notice-dismissed", true );
         } );
@@ -155,7 +303,7 @@ class Theme {
             }
 
             $theme_class = get_template() . "-theme";
-            $output      .= " class='{$theme_class} colibri-wp-theme'";
+            $output      .= " class='{$theme_class}'";
 
             return $output;
 

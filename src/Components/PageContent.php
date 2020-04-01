@@ -74,7 +74,7 @@ class PageContent extends ComponentBase {
                 View::printIn( View::ROW_ELEMENT, function () {
                     View::printIn( View::COLUMN_ELEMENT, function () {
                         while ( have_posts() ) : the_post();
-                            one_page_express_get_template_part( 'template-parts/content/content', 'page' );
+                            \ColibriWP\Theme\View::partial( 'content', 'content-page');
                         endwhile;
                     } );
                 } );

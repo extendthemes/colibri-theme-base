@@ -45,7 +45,7 @@ class AssetsManager {
         $this->theme = $theme;
         $this->key   = Defaults::get( 'assets_js_key', 'THEME_DATA' );
 
-        $this->base_url = colibriwp_theme_root_directory_uri() . "/resources";
+        $this->base_url = Theme::rootDirectoryUri() . "/resources";
 
          
     }
@@ -262,7 +262,7 @@ class AssetsManager {
         if ( $this->is_hot ) {
             $this->registerTemplateStyle( $handle, "/{$hot_rel}", $deps, $auto_enqueue );
         } else {
-            $this->registerStyle( $handle, one_page_express_get_stylesheet_uri(), $deps, $auto_enqueue );
+            $this->registerStyle( $handle, get_stylesheet_uri(), $deps, $auto_enqueue );
         }
 
         return $this;

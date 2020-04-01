@@ -28,10 +28,11 @@ class Defaults {
             return;
         }
 
-        $defaults = require_once colibriwp_theme_root_directory() . "/inc/defaults.php";
+        $dir = Theme::rootDirectory();
+        $defaults = require_once $dir . "/inc/defaults.php";
 
-        if ( file_exists( colibriwp_theme_root_directory() . "/inc/template-defaults.php" ) ) {
-            $template_defaults = require_once colibriwp_theme_root_directory() . "/inc/template-defaults.php";
+        if ( file_exists( $dir . "/inc/template-defaults.php" ) ) {
+            $template_defaults = require_once $dir . "/inc/template-defaults.php";
             static::$defaults  = array_replace_recursive( $template_defaults, $defaults );
         }
 

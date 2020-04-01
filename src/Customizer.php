@@ -352,6 +352,7 @@ class Customizer {
 
         wp_localize_script( $customizer_handle, 'colibri_Customizer_Data',
             Hooks::prefixed_apply_filters( 'customizer_js_data', array(
+                'theme_slug' => Theme::$slug,
                 'translations'              => Translations::all(),
                 'section_default_tab'       => ColibriControl::DEFAULT_COLIBRI_TAB,
                 'style_tab'                 => ColibriControl::STYLE_COLIBRI_TAB,
