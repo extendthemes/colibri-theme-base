@@ -51,34 +51,14 @@ class Theme {
       return $slug.($theme ? "_theme_" : "_").$str;
     }
 
-    public static function setThemeBaseRelativePath($path)
-    {
-        static::$theme_base_relative_path = $path;
-    }
-
-    public static function getThemeBaseRelativePath()
-    {
-        return static::$theme_base_relative_path;
-    }
-
-    public static function setThemeRootRelativePath($path)
-    {
-        static::$theme_root_relative_path = $path;
-    }
-
-    public static function getThemeRootRelativePath()
-    {
-        return static::$theme_root_relative_path;
-    }
-
     public static function resolveTemplateRelativePath($rel)
     {
-        return static::$theme_root_relative_path . $rel;
+        return trailingslashit(static::$theme_root_relative_path) . $rel;
     }
 
     public static function resolveThemeBaseTemplateRelativePath($rel)
     {
-        return static::$theme_base_relative_path . $rel;
+        return trailingslashit(static::$theme_base_relative_path) . $rel;
     }
 
 
@@ -90,11 +70,11 @@ class Theme {
     }
 
     public static function rootDirectory() {
-        return get_template_directory() . "/" . static::$theme_root_relative_path . "/";
+        return get_template_directory() . "/" . static::$theme_root_relative_path;
     }
 
     public static function rootDirectoryUri() {
-        return get_template_directory_uri() . "/" . static::$theme_root_relative_path . "/";
+        return get_template_directory_uri() . "/" . static::$theme_root_relative_path;
     }
 
     /**
@@ -274,6 +254,7 @@ class Theme {
 
         Defaults::load();
         Translations::load();
+        ThemeTranslations::load();
 
         $this->registerMenus();
 
@@ -297,43 +278,41 @@ class Theme {
             update_option( "{$slug}-theme-notice-dismissed", true );
         } );
 
-        add_filter( 'language_attributes', function ( $output ) {
-            if ( apply_filters( 'colibri_page_builder/installed', false ) ) {
-                return $output;
-            }
+        add_filter( 'language_attributes', array( $this, 'languageAttributes' ) );
 
-            $theme_class = get_template() . "-theme";
-            $output      .= " class='{$theme_class}'";
-
-            return $output;
-
-        } );
-
-        add_action( 'admin_enqueue_scripts', function () {
-
-            $slug = get_template() . "-page-info";
-
-            $this->getAssetsManager()->registerScript(
-                $slug,
-                $this->getAssetsManager()->getBaseURL() . "/admin/admin.js",
-                array( 'jquery' ),
-                false
-            )->registerStyle(
-                $slug,
-                $this->getAssetsManager()->getBaseURL() . "/admin/admin.css" .
-                false
-            );
-
-        }, 0 );
-
-        add_filter('colibri_page_builder/demo-sites-list', function() {
-            return View::getData( 'demos' );
-        });
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAdminScripts' ), 0 );
     }
-
+    
+    
     private function registerMenus() {
         register_nav_menus( $this->registered_menus );
     }
+    
+    public function languageAttributes( $output ) {
+        if ( apply_filters( 'colibri_page_builder/installed', false ) ) {
+            return $output;
+        }
+
+        $theme_class = get_template() . "-theme";
+        $output      .= " class='{$theme_class}'";
+	
+        return $output;
+    }
+    
+        public function enqueueAdminScripts() {
+        $slug = get_template() . "-page-info";
+
+        $this->getAssetsManager()->registerScript(
+            $slug,
+            $this->getAssetsManager()->getBaseURL() . "/admin/admin.js",
+            array( 'jquery' ),
+            false
+        )->registerStyle(
+            $slug,
+            $this->getAssetsManager()->getBaseURL() . "/admin/admin.css" .
+            false );
+    }
+
 
     /**
      * @return AssetsManager
@@ -398,16 +377,17 @@ class Theme {
             array( $this, 'printThemePage' )
         );
 
-        add_action( 'admin_enqueue_scripts', function () {
-            global $plugin_page;
-            $slug = get_template() . "-page-info";
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueueThemeInfoPageScripts' ), 20 );
+    }
 
-            if ( $plugin_page === $slug ) {
-                wp_enqueue_style( $slug );
-                wp_enqueue_script( $slug );
-            }
+    public function enqueueThemeInfoPageScripts() {
+        global $plugin_page;
+        $slug = get_template() . "-page-info";
 
-        }, 20 );
+        if ( $plugin_page === $slug ) {
+            wp_enqueue_style( $slug );
+            wp_enqueue_script( $slug );
+        }
     }
 
     public function printThemePage() {
@@ -441,16 +421,17 @@ class Theme {
         );
 
     }
+    
+    
 
-    public function getTheme( $stylesheet = null ) {
+    public function getThemeHeaderData( $key, $child = false ) {
 
-        if ( ! array_key_exists( $stylesheet, $this->themes_cache ) ) {
-            $this->themes_cache[ $stylesheet ] = wp_get_theme( $stylesheet );
-        }
+        $slug  = $this->getThemeSlug( $child );
+        $theme = $this->getTheme( $slug );
 
-        return $this->themes_cache[ $stylesheet ];
-
+        return $theme->get( $key );
     }
+
 
     public function getThemeSlug( $maybe_get_child = false ) {
         $slug  = get_template();
@@ -466,13 +447,16 @@ class Theme {
         return $slug;
 
     }
+    
+    
+    public function getTheme( $stylesheet = null ) {
 
-    public function getThemeHeaderData( $key, $child = false ) {
+        if ( ! array_key_exists( $stylesheet, $this->themes_cache ) ) {
+            $this->themes_cache[ $stylesheet ] = wp_get_theme( $stylesheet );
+        }
 
-        $slug  = $this->getThemeSlug( $child );
-        $theme = $this->getTheme( $slug );
+        return $this->themes_cache[ $stylesheet ];
 
-        return $theme->get( $key );
     }
 
     public function doInitWidgets() {

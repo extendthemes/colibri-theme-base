@@ -51,28 +51,6 @@ class Footer extends ComponentBase {
 
     }
 
-    public function printCopyright() {
-        $colibr_theme_url = sprintf(
-            '<a target="_blank" href="%s" class="mesmerize-theme-link">%s</a>',
-            "https://colibriwp.com",
-            __( 'Colibri Theme', 'one-page-express' )
-        );
-
-        $copyrightText = sprintf(
-            __( 'Built using WordPress and the %s', 'one-page-express' ),
-            $colibr_theme_url
-        );
-
-        $copyright = sprintf(
-            '<p class="copyright">&copy;&nbsp;&nbsp;%s&nbsp;%s.&nbsp;%s</p>',
-            date_i18n( __( 'Y', 'one-page-express' ) ),
-            esc_html( get_bloginfo( 'name' ) ),
-            $copyrightText
-        );
-
-        echo $copyright;
-    }
-
     public function renderContent() {
 
         Hooks::prefixed_do_action( 'before_footer' );

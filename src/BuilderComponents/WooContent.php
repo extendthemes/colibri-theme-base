@@ -51,6 +51,8 @@ class WooContent extends BuilderComponentBase {
 
         $sidebar_id = 'ecommerce-'.$side;
         $is_active = is_active_sidebar("colibri-${sidebar_id}");
+        $in_customizer = isset ( $GLOBALS['wp_customize'] );
+        $is_active = $is_active || $in_customizer;
         $display_sidebar = Hooks::prefixed_apply_filters( 'colibri_sidebar_enabled', $is_active, $sidebar_id );
 
         if ( $display_sidebar ) {
@@ -110,8 +112,7 @@ class WooContent extends BuilderComponentBase {
             $class = (array) $class;
         }
 
-        array_push( $class, 'colibri-main-content-archive' );
-
+        array_push( $class, 'colibri-woo-main-content-archive' );
         return $class;
     }
 

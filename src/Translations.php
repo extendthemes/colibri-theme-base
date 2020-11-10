@@ -2,12 +2,10 @@
 
 
 namespace ColibriWP\Theme;
-
-
 use ColibriWP\Theme\Core\Hooks;
 
 class Translations {
-    private static $texts = array();
+    protected static $texts = array();
 
     public static function load() {
         $texts = require_once Theme::rootDirectory() . "/inc/translations.php";

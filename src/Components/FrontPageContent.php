@@ -8,15 +8,20 @@ class FrontPageContent extends PageContent {
 
     public function renderContent() {
         ?>
-        <div class="page-content colibri-page-content">
-            <div class="content">
+        <div class="page-content">
+            <?php while ( have_posts() ) : the_post(); ?>
+            <div id="content"  class="content">
                 <?php
-                while ( have_posts() ) : the_post();
-                    the_content();
+                the_content();
                 endwhile;
                 ?>
             </div>
+            <?php
+            get_template_part( 'comments-page');
+            ?>
         </div>
         <?php
+
     }
+
 }

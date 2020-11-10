@@ -45,11 +45,11 @@ class PluginMessageControl extends VueControl {
 
     public function addData() {
 
-        if ( Hooks::prefixed_apply_filters( 'plugin-customizer-controller-data-added', false ) ) {
+        if ( Hooks::colibri_apply_filters( 'plugin-customizer-controller-data-added', false ) ) {
             return;
         }
 
-        Hooks::prefixed_add_filter( 'plugin-customizer-controller-data-added', '__return_true' );
+        Hooks::colibri_add_filter( 'plugin-customizer-controller-data-added', '__return_true' );
 
         add_action( 'customize_controls_print_footer_scripts', function () {
 
@@ -57,12 +57,11 @@ class PluginMessageControl extends VueControl {
                 "status"       => Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ),
                 "install_url"  => Theme::getInstance()->getPluginsManager()->getInstallLink( 'colibri-page-builder' ),
                 "activate_url" => Theme::getInstance()->getPluginsManager()->getActivationLink( 'colibri-page-builder' ),
-                "theme_slug" => Theme::$slug,
                 "messages"     => array(
-                "installing" => Translations::get( 'installing',
-                    'Colibri Page Builder' ),
-                "activating" => Translations::get( 'activating',
-                    'Colibri Page Builder' )
+                    "installing" => Translations::get( 'installing',
+                        'Colibri Page Builder' ),
+                    "activating" => Translations::get( 'activating',
+                        'Colibri Page Builder' )
                 ),
                 "admin_url"    => add_query_arg( array(
                     'colibri_create_pages'       => '1',

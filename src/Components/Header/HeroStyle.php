@@ -651,8 +651,9 @@ class HeroStyle extends PartialComponent {
 					'colibri_tab'       => 'style',
 					'controls'          => array(
 						"{$divider_prefix}type",
-						"{$divider_prefix}color",
-						"{$divider_prefix}height.value",
+              "{$divider_prefix}negative",
+              "{$divider_prefix}color",
+              "{$divider_prefix}height.value",
 					),
 					'selective_refresh' => array(
 						'selector' => $this->getSelector(),
@@ -746,6 +747,21 @@ class HeroStyle extends PartialComponent {
 					),
 				),
 			),
+
+       "{$divider_prefix}negative" => array(
+            'default'    => Defaults::get( "{$divider_prefix}negative", 100 ),
+            'control'    => array(
+                'label'        => Translations::escHtml( "divider_negative" ),
+                'type'              => 'switch',
+                'section'     => 'hero',
+                'colibri_tab'       => 'style',
+                'active_rules' => array( $active_rule_base ),
+                'selective_refresh' => array(
+                    'selector' => $this->getSelector(),
+                    'function' => array( $this, 'renderContent' )
+                )
+            )
+        ),
 		);
 	}
 

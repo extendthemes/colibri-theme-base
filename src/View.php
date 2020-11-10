@@ -26,10 +26,23 @@ class View {
         $category = Utils::camel2dashed( $category );
         $slug     = Utils::camel2dashed( $slug );
 
+        static::prinDebugHTMLComment( 'Start Partial', "/{$category}/{$slug}" );
         static::make( Theme::resolveTemplateRelativePath("template-parts/{$category}/{$slug}"), $data,false );
+        static::prinDebugHTMLComment( 'Start Partial', "/{$category}/{$slug}" );
 
     }
 
+    public static function prinDebugHTMLComment( $message = '', $details = '' ) {
+
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            $message = $details ? trim( $message ) . " - " : '';
+            $content = trim( strtoupper( $message ) . trim( $details ) );
+            ?>
+            <!--  <?php echo esc_attr( $content ); ?> -->
+            <?php
+        }
+    }
+    
     public static function get_template_part( $path ) {
         self::make($path);
     }
@@ -178,39 +191,6 @@ class View {
         <?php
     }
 
-    public static function printPagination( $args = array(), $class = 'pagination' ) {
-        if ( $GLOBALS['wp_query']->max_num_pages <= 1 ) {
-            return;
-        }
-
-        $args = wp_parse_args( $args, array(
-            'mid_size'           => 2,
-            'before_page_number' => '<span class="meta-nav screen-reader-text">' . __( 'Page', 'one-page-express' )
-                                    . ' </span>',
-            'prev_text'          => __( '<i class="fa fa-angle-left" aria-hidden="true"></i>', 'one-page-express' ),
-            'next_text'          => __( '<i class="fa fa-angle-right" aria-hidden="true"></i>', 'one-page-express' ),
-            'screen_reader_text' => __( 'Posts navigation', 'one-page-express' ),
-        ) );
-
-        $links = paginate_links( $args );
-
-        $next_link = get_previous_posts_link( __( '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-            'one-page-express' ) );
-        $prev_link = get_next_posts_link( __( '<i class="fa fa-angle-right" aria-hidden="true"></i>',
-            'one-page-express' ) );
-
-        $template = '<div class="navigation %1$s" role="navigation">' .
-                    '  <h2 class="screen-reader-text">%2$s</h2>' .
-                    '  <div class="nav-links">' .
-                    '    <div class="prev-navigation">%3$s</div>' .
-                    '    <div class="numbers-navigation">%4$s</div>' .
-                    '    <div class="next-navigation">%5$s</div>' .
-                    '  </div>' .
-                    '</div>';
-
-        echo sprintf( $template, esc_attr( $class ), $args['screen_reader_text'], $next_link, $links, $prev_link );
-    }
-
     public static function printRowStart( $args ) {
 
         $args = array_merge( array(
@@ -250,6 +230,7 @@ class View {
             }
 
             $value             = esc_attr( $value );
+            $key               = sanitize_key( $key );
             $key_value_attrs[] = "{$key}='{$value}'";
         }
 
@@ -302,6 +283,7 @@ class View {
         $class         = Utils::pathGet( $args, 'class', array() );
         $class         = array_merge( array( 'content', ' position-relative' ), $class );
         $args['class'] = $class;
+        $args['id']    = Utils::pathGet( $args, 'id', 'content' );
 
         self::printElementStart( 'div', $args );
 

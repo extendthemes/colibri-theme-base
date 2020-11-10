@@ -195,10 +195,23 @@ class Hero extends ComponentBase {
         $prefix         = static::$settings_prefix;
         $divider_prefix = "{$prefix}style.separatorBottom.";
         $enabled        = $this->mod( "{$divider_prefix}enabled", false );
+        $negative        = $this->mod( "{$divider_prefix}negative", false );
+
         if ( $enabled ) {
+
             $style = $this->mod( "{$divider_prefix}type", 'mountains' );
 
             $divider_style = Defaults::get( 'divider_style' );
+
+            if ($negative && !isset($divider_style[ $style .'-negative' ])) {
+                $negative = false;
+            }
+
+            if ($negative) {
+                $style .= '-negative';
+            }
+
+
 
             $svg = '';
             if ( isset( $divider_style[ $style ] ) ) {
@@ -207,8 +220,15 @@ class Hero extends ComponentBase {
 
             //set color
             $svg = str_replace( '<path', '<path class="svg-white-bg"', $svg );
+
+            if ($negative) {
+                $transform = '';
+            } else {
+                $transform = 'transform:rotateX(180deg);';
+            }
+
             //flip for bottom
-            $svg       = str_replace( '<svg ', '<svg style="transform:rotateX(180deg);" ', $svg );
+            $svg       = str_replace( '<svg ', '<svg style="'.$transform.'" ', $svg );
             $separator = "<div class='h-separator' style='bottom: -1px;'>$svg</div>";
 
             echo $separator;

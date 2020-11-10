@@ -193,4 +193,21 @@ class Utils {
 
     }
 
+    public static function sanitizeSelectControl( $control_data, $current_value ) {
+        $possible_values = array_keys( Utils::pathGet( $control_data, 'choices', array() ) );
+
+        if ( in_array( $current_value, $possible_values ) ) {
+            return $current_value;
+        }
+
+        return null;
+    }
+
+    public static function sanitizeEscapedJSON( $value ) {
+        if ( json_decode( urldecode( $value ) ) ) {
+            return $value;
+        }
+
+        return null;
+    }
 }

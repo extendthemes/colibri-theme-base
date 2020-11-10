@@ -3,7 +3,6 @@
 
 namespace ColibriWP\Theme\Core;
 
-use ColibriWP\PageBuilder\PageBuilder;
 use ColibriWP\Theme\Theme;
 use function add_action;
 use function add_filter;

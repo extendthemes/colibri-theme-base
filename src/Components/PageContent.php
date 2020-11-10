@@ -79,6 +79,7 @@ class PageContent extends ComponentBase {
                     } );
                 } );
             }, $self->getPageSectionClass() );
+            get_template_part( 'comments-page');
         }, array(
             "class" => array( 'page-content', 'colibri-page-content' )
         ) );
