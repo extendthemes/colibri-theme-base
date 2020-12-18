@@ -12,7 +12,7 @@ use ColibriWP\Theme\Translations;
 class PluginMessageControl extends VueControl {
 
     public $type = "colibri-plugin-message";
-
+	public static $slug = null;
     protected function printVueContent() {
 
         $this->addData();
@@ -22,7 +22,7 @@ class PluginMessageControl extends VueControl {
             <p>
                 <?php echo Translations::get( 'plugin_message', 'Colibri Page Builder' ); ?>
             </p>
-            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::NOT_INSTALLED_PLUGIN ): ?>
+            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( $this->getBuilderSlug() ) === PluginsManager::NOT_INSTALLED_PLUGIN ): ?>
                 <button data-colibri-plugin-action="install"
                         class="el-button el-link h-col el-button--primary el-button--small"
                         style="text-decoration: none">
@@ -30,7 +30,7 @@ class PluginMessageControl extends VueControl {
                 </button>
             <?php endif; ?>
 
-            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( 'colibri-page-builder' ) === PluginsManager::INSTALLED_PLUGIN ): ?>
+            <?php if ( Theme::getInstance()->getPluginsManager()->getPluginState( $this->getBuilderSlug() ) === PluginsManager::INSTALLED_PLUGIN ): ?>
                 <button data-colibri-plugin-action="activate"
                         class="el-button el-link h-col el-button--primary el-button--small"
                         style="text-decoration: none">
@@ -43,13 +43,28 @@ class PluginMessageControl extends VueControl {
         <?php
     }
 
+	protected function getBuilderSlug() {
+		if ( self::$slug ) {
+			return self::$slug;
+		}
+		$builder_plugin    = 'colibri-page-builder';
+		$installed_plugins = get_plugins();
+		foreach ( $installed_plugins as $key => $plugin_data ) {
+			if ( strpos( $key, 'colibri-page-builder-pro' ) !== false ) {
+				$builder_plugin = 'colibri-page-builder-pro';
+			}
+		}
+		self::$slug = $builder_plugin;
+
+		return self::$slug;
+	}
     public function addData() {
 
-        if ( Hooks::colibri_apply_filters( 'plugin-customizer-controller-data-added', false ) ) {
+        if ( Hooks::prefixed_apply_filters( 'plugin-customizer-controller-data-added', false ) ) {
             return;
         }
 
-        Hooks::colibri_add_filter( 'plugin-customizer-controller-data-added', '__return_true' );
+        Hooks::prefixed_add_filter( 'plugin-customizer-controller-data-added', '__return_true' );
 
         add_action( 'customize_controls_print_footer_scripts', function () {
 

@@ -23,6 +23,9 @@ class ControlsGroupControl extends VueControl {
 		parent::__construct( $manager, $id, $args );
 	}
 
+    public static function sanitize( $value, $control_data, $default = '' ) {
+        return 1;
+    }
 
 	public function json() {
 		$json        = parent::json();

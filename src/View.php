@@ -28,7 +28,7 @@ class View {
 
         static::prinDebugHTMLComment( 'Start Partial', "/{$category}/{$slug}" );
         static::make( Theme::resolveTemplateRelativePath("template-parts/{$category}/{$slug}"), $data,false );
-        static::prinDebugHTMLComment( 'Start Partial', "/{$category}/{$slug}" );
+        static::prinDebugHTMLComment( 'End Partial', "/{$category}/{$slug}" );
 
     }
 

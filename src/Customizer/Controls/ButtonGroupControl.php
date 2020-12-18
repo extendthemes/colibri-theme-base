@@ -17,7 +17,15 @@ class ButtonGroupControl extends VueControl {
     }
 
     public static function sanitize( $value, $control_data, $default = '' ) {
-        return Utils::sanitizeSelectControl( $control_data, $value );
+        $list_value = Utils::sanitizeSelectControl( $control_data, $value );
+        $none_value = Utils::pathGet( $control_data, 'none_value', null );
+
+        if ( ! $list_value && $none_value !== null && $none_value === $value ) {
+            $list_value = $none_value;
+        }
+
+
+        return $list_value;
     }
 
     /**

@@ -116,7 +116,7 @@ class Customizer {
             var colibri_CSS_OUTPUT_CONTROLS = <?php echo wp_json_encode( ControlFactory::getCssOutputControls() ); ?>;
             var colibri_JS_OUTPUT_CONTROLS = <?php echo wp_json_encode( ControlFactory::getJsOutputControls() ); ?>;
             var colibri_CONTROLS_ACTIVE_RULES = <?php echo wp_json_encode( ControlFactory::getActiveRules() ); ?>;
-            var colibri_ADDITIONAL_JS_DATA = <?php echo wp_json_encode( (object) Hooks::colibri_apply_filters( 'customizer_additional_js_data',
+            var colibri_ADDITIONAL_JS_DATA = <?php echo wp_json_encode( (object) Hooks::prefixed_apply_filters( 'customizer_additional_js_data',
                 array() ) ); ?>;
         </script>
         <?php

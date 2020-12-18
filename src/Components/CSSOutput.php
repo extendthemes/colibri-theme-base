@@ -149,6 +149,11 @@ class CSSOutput implements ComponentInterface {
 
         $mod_value = get_theme_mod( $mod, $default );
         $mod_value = Formatter::sanitizeControlValue( $control_type, $mod_value );
+
+        if(!$mod_value){
+          return  '';
+        }
+
         if ( isset( $output['value'] ) && is_array( $output['value'] ) ) {
             $output['value'] = $output['value'][ $mod_value ];
         } else {

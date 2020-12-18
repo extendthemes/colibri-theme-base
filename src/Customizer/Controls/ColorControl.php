@@ -30,6 +30,12 @@ class ColorControl extends VueControl {
 
                     return 'rgb(' . $red . ',' . $green . ',' . $blue . ')';
                 }
+
+                if ( strpos( $value, 'rgba(' ) === 0 ) {
+                    $color = str_replace( ' ', '', $value );
+                    sscanf( $color, 'rgba(%d,%d,%d,%f)', $red, $green, $blue, $alpha );
+                    return 'rgb(' . $red . ',' . $green . ',' . $blue . ')';
+                }
             }
 
         } else {
